@@ -1,1 +1,19 @@
-/target/
+# Maven / Spring Boot
+target/
+*.jar
+*.war
+*.ear
+
+# IDE files
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
