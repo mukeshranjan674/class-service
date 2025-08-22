@@ -1,18 +1,23 @@
 package com.example.category.controllers;
 
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.category.model.Name;
+import com.example.category.IService.ICategoryService;
+import com.example.category.annotations.LogMethodParam;
+import com.example.category.dao.Category;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,20 +25,37 @@ public class CategoryController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 	
-	@PostMapping("/full-name")
-	public ResponseEntity<String> getFullName(@RequestHeader(value = "X-Trace-Id", required = false) String traceId,
-			@RequestBody(required = true) Name name){
+	@Autowired
+	private ICategoryService categoryService;
+	
+	@LogMethodParam
+	@PostMapping("/bulk")
+	public ResponseEntity<String> getFullName(@RequestBody(required = true) List<Category> categoryList){
 		
-		if(traceId == null) {
-			traceId = UUID.randomUUID().toString();
-		}
 		
-		logger.info("Trace id : {} | API : {} | Payload : {} ", traceId, "POST /full-name ", name.toString()); 
+		boolean status = this.categoryService.saveAllCategories(categoryList);
 		
-		String fullname = String.join(" ", name.getName(), name.getSurname());
+		return new ResponseEntity<String>(status ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@LogMethodParam
+	@GetMapping("/{id}")
+	public ResponseEntity<Category> getById(@PathVariable(required = true) Long id){
 		
-		return new ResponseEntity<>(fullname, HttpStatus.CREATED);
+		Optional<Category> category = this.categoryService.findCategoryById(id);
+		
+		return category.isPresent() ? new ResponseEntity<>(category.get(), HttpStatus.OK) :
+			new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 
+	@LogMethodParam
+	@GetMapping("/all")
+	public ResponseEntity<Object> getAll(){
+		
+		Object response = this.categoryService.getAll();
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+		
+	}
 
 }
