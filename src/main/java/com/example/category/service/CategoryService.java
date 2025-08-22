@@ -64,4 +64,11 @@ public class CategoryService implements ICategoryService{
 		return root;
 	}
 
+	@Override
+	public void deleteAll() {
+		
+		this.categoryRepository.deleteAll();
+		
+	}
+
 }

@@ -12,4 +12,6 @@ public interface ICategoryService {
 	public Optional<Category> findCategoryById(Long id);
 	
 	public Object getAll();
+	
+	void deleteAll();
 }
